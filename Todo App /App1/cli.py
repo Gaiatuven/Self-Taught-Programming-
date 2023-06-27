@@ -1,72 +1,65 @@
 from functions import get_todos, write_todos
-import functions
 import time
 
-now = time.strftime("%b %d, %Y %H:%M:$S")
-print(f"It is, {now}")
+now = time.strftime("%b %d, %Y %H:%M:%S")
+print(f"It is {now}")
 
 while True:
     user_action = input("Type add, show, edit, complete, or exit: ")
-    user_action = user_action.strip()
+    user_action = user_action.strip().lower()
 
-    if user_action.startswith("add"):
-        todo = user_action[4:]
+    try:
+        if user_action.startswith("add"):
+            todo = user_action[4:]
 
-        todos = get_todos("todos.txt")
-        todos.append(todo + '\n')
-        write_todos("todos.txt", todos)
+            todos = get_todos()
+            todos.append(todo)
 
-    elif user_action.startswith("show"):
-        todos = get_todos("todos.txt")
+            write_todos(todos)
 
-        for index, item in enumerate(todos):
-            item = item.strip('\n')
-            row = f'{index + 1}-{item}'
-            print(row)
+        elif user_action.startswith("show"):
 
-    elif user_action.startswith("edit"):
-        try:
-            number = int(user_action[5:])
-            print(number)
+            todos = get_todos()
 
-            number = number - 1
+            for index, item in enumerate(todos):
+                item = item.strip('\n')
+                row = f'{index + 1}-{item}'
+                print(row)
+
+        elif user_action.startswith("edit"):
+            number = int(user_action[5:]) - 1
 
             todos = get_todos("todos.txt")
 
-            new_todo = input("Enter new Todo: ")
-            todos[number] = new_todo + '\n'
+            if 0 <= number < len(todos):
+                new_todo = input("Enter new Todo: ")
+                todos[number] = new_todo + '\n'
+                write_todos("todos.txt", todos)
+            else:
+                print("Invalid index")
 
-            write_todos("todos.txt", todos)
-
-        except ValueError:
-            print("Your command is not valid")
-            continue
-
-    elif user_action.startswith("complete"):
-        try:
+        elif user_action.startswith("complete"):
             number = int(user_action[9:])
 
             todos = get_todos("todos.txt")
 
-            index = number - 1
-            todo_to_remove = todos[index].strip('\n')
-            todos.pop(index)
+            if 0 < number <= len(todos):
+                index = number - 1
+                todo_to_remove = todos[index].strip('\n')
+                todos.pop(index)
+                write_todos("todos.txt", todos)
+                message = f'Todo {todo_to_remove} was removed from the list'
+                print(message)
+            else:
+                print("Invalid index")
 
-            write_todos("todos.txt", todos)
+        elif user_action.startswith("exit"):
+            break
+        else:
+            print("Command not valid")
 
-            message = f'Todo {todo_to_remove} was removed from the list'
-            print(message)
+    except ValueError:
+        print("Your command is not valid")
+        continue
 
-        except ValueError:
-            print("Your command is not valid")
-            continue
-        except IndexError:
-            print("Invalid index")
-            continue
-
-    elif user_action.startswith("exit"):
-        break
-    else:
-        print("Command not valid")
-
-print("Thank you and Goodbye")
+print("Thank you and goodbye")
